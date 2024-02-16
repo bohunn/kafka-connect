@@ -41,10 +41,10 @@ jobs:
         done < plugins.config
 
     - name: Build Docker image
-      run: docker build . --file Dockerfile --tag my-kafka-connect:${{ env.BASE_IMAGE_VERSION }}
+      run: docker build . --file Dockerfile --tag my-kafka-connect:${{ env.STRIMZI_VERSION }}
 
     - name: Push Docker image
       run: |
         echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-        docker push my-kafka-connect:${{ env.BASE_IMAGE_VERSION }}
+        docker push my-kafka-connect:${{ env.STRIMZI_VERSION }}
       if: github.ref == 'refs/heads/main'
