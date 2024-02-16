@@ -41,16 +41,23 @@ jobs:
     - name: Download Plugins
       run: |
         mkdir -p plugins
-        while IFS= read -r plugin; do
-          echo "Processing plugin: $plugin"
+        cat plugins.config # Debug: Print the content of plugins.config for verification
+        while IFS= read -r plugin || [[ -n "$plugin" ]]; do
+          echo "Processing: $plugin"
           if [[ $plugin == http* ]]; then
-            wget -P ./plugins "$plugin" || echo "Failed to download $plugin"
+            echo "Detected URL, attempting to download: $plugin"
+            wget -P ./plugins "$plugin" && echo "Download successful: $plugin" || echo "Download failed: $plugin"
           else
-            PLUGIN_NAME=$(echo $plugin | cut -d':' -f1)
-            PLUGIN_VERSION=$(echo $plugin | cut -d':' -f2)
-            confluent-hub install --no-prompt --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION || echo "Failed to install $PLUGIN_NAME:$PLUGIN_VERSION"
+            IFS=':' read -r PLUGIN_NAME PLUGIN_VERSION <<< "$plugin"
+            if [[ -z "$PLUGIN_NAME" || -z "$PLUGIN_VERSION" ]]; then
+              echo "Invalid plugin specification: $plugin"
+            else
+              echo "Detected plugin, attempting to install: $PLUGIN_NAME:$PLUGIN_VERSION"
+              confluent-hub install --no-prompt --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION && echo "Installation successful: $PLUGIN_NAME:$PLUGIN_VERSION" || echo "Installation failed: $PLUGIN_NAME:$PLUGIN_VERSION"
+            fi
           fi
         done < plugins.config
+
 
     - name: Build Docker image
       run: docker build . --file Dockerfile --tag "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}"
