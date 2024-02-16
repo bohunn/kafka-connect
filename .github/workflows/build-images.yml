@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Load Config
       id: config
@@ -24,7 +24,7 @@ jobs:
 
     - name: Prepare Dockerfile
       run: |
-        sed "s/\${STRIMZI_VERSION}/${{ env.STRIMZI_VERSION }}/g" Dockerfile.template > Dockerfile
+        sed "s/\${STRIMZI_VERSION}/${{ env.STRIMZI_VERSION }}/g" Dockerfile
         sed -i "s/\${KAFKA_VERSION}/${{ env.KAFKA_VERSION }}/g" Dockerfile
 
     - name: Download Plugins
