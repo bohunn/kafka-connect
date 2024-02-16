@@ -28,6 +28,15 @@ jobs:
         sed -i "s/\${STRIMZI_VERSION}/${{ env.STRIMZI_VERSION }}/g" Dockerfile
         sed -i "s/\${KAFKA_VERSION}/${{ env.KAFKA_VERSION }}/g" Dockerfile
 
+    - name: Check plugins.config exists
+      run: |
+        if [ ! -f plugins.config ]; then
+          echo "plugins.config does not exist, skipping plugin download."
+          exit 1
+        else
+          echo "plugins.config found, proceeding with plugin download."
+        fi
+
     - name: Download Plugins
       run: |
         mkdir -p plugins
