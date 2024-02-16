@@ -1,4 +1,4 @@
-FROM quay.io/strimzi/kafka:${STRIMZI_VERSION}-kafka-${KAFKA_VERSION}
+FROM quay.io/strimzi/kafka:${STRIMZI_VERSION}-kafka-${KAFKA_VERSION}-a
 
 # Copy plugins to a custom directory
 COPY ./plugins /opt/kafka/plugins
