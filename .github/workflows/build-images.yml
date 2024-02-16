@@ -33,7 +33,8 @@ jobs:
         if [ ! -f plugins.config ]; then
           echo "plugins.config does not exist, skipping plugin download."
           exit 1
-        else
+        else          
+          cat plugins.config
           echo "plugins.config found, proceeding with plugin download."
         fi
 
