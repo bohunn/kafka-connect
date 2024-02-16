@@ -67,7 +67,7 @@ jobs:
 
 
     - name: Build Docker image
-      run: docker build . --file Dockerfile --tag "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}"
+      run: docker build . --file Dockerfile --tag "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}"-a
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -77,6 +77,6 @@ jobs:
       
     - name: Push Docker image to Docker Hub
       run: |
-        docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}"
+        docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}"-a
       env:
         DOCKER_IMAGE_TAG: ${{ steps.commit_id.outputs.commit_id }}
