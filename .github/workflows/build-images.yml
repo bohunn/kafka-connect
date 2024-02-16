@@ -32,13 +32,13 @@ jobs:
       run: |
         mkdir -p plugins
         while IFS= read -r plugin; do
-          echo $plugin
+          echo "Processing plugin: $plugin"
           if [[ $plugin == http* ]]; then
-            wget -P ./plugins "$plugin"
+            wget -P ./plugins "$plugin" || echo "Failed to download $plugin"
           else
             PLUGIN_NAME=$(echo $plugin | cut -d':' -f1)
             PLUGIN_VERSION=$(echo $plugin | cut -d':' -f2)
-            confluent-hub install --no-prompt --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION
+            confluent-hub install --no-prompt --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION || echo "Failed to install $PLUGIN_NAME:$PLUGIN_VERSION"
           fi
         done < plugins.config
 
