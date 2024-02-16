@@ -60,6 +60,7 @@ jobs:
             else
               echo "Detected plugin, attempting to install: $PLUGIN_NAME:$PLUGIN_VERSION"
               confluent-hub install --no-prompt --worker-configs kafka-connect-distributed.properties --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION && echo "Installation successful: $PLUGIN_NAME:$PLUGIN_VERSION" || echo "Installation failed: $PLUGIN_NAME:$PLUGIN_VERSION"
+              ls -al ./plugins
             fi
           fi
         done < plugins.config
