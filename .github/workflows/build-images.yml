@@ -1,0 +1,50 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Load Config
+      id: config
+      run: |
+        BRANCH_NAME=${GITHUB_REF#refs/heads/}
+        CONFIG_FILE="${BRANCH_NAME}_config.env"
+        echo "Loading configuration from $CONFIG_FILE"
+        source $CONFIG_FILE
+        echo "STRIMZI_VERSION=${STRIMZI_VERSION}" >> $GITHUB_ENV
+        echo "KAFKA_VERSION=${KAFKA_VERSION}" >> $GITHUB_ENV        
+
+    - name: Prepare Dockerfile
+      run: |
+        sed "s/\${STRIMZI_VERSION}/${{ env.STRIMZI_VERSION }}/g" Dockerfile.template > Dockerfile
+        sed -i "s/\${KAFKA_VERSION}/${{ env.KAFKA_VERSION }}/g" Dockerfile
+
+    - name: Download Plugins
+      run: |
+        mkdir -p plugins
+        while IFS= read -r plugin; do
+          if [[ $plugin == http* ]]; then
+            wget -P ./plugins "$plugin"
+          else
+            PLUGIN_NAME=$(echo $plugin | cut -d':' -f1)
+            PLUGIN_VERSION=$(echo $plugin | cut -d':' -f2)
+            confluent-hub install --no-prompt --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION
+          fi
+        done < plugins.config
+
+    - name: Build Docker image
+      run: docker build . --file Dockerfile --tag my-kafka-connect:${{ env.BASE_IMAGE_VERSION }}
+
+    - name: Push Docker image
+      run: |
+        echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        docker push my-kafka-connect:${{ env.BASE_IMAGE_VERSION }}
+      if: github.ref == 'refs/heads/main'
