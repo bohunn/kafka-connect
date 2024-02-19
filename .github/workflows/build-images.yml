@@ -59,15 +59,15 @@ jobs:
               echo "Invalid plugin specification: $plugin"
             else
               echo "Detected plugin, attempting to install: $PLUGIN_NAME:$PLUGIN_VERSION"
-              confluent-hub install --no-prompt --worker-configs kafka-connect-distributed.properties --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION && echo "Installation successful: $PLUGIN_NAME:$PLUGIN_VERSION" || echo "Installation failed: $PLUGIN_NAME:$PLUGIN_VERSION"
-              ls -al ./plugins
+              confluent-hub install --no-prompt --worker-configs kafka-connect-distributed.properties --component-dir ./plugins $PLUGIN_NAME:$PLUGIN_VERSION && echo "Installation successful: $PLUGIN_NAME:$PLUGIN_VERSION" || echo "Installation failed: $PLUGIN_NAME:$PLUGIN_VERSION"              
             fi
+            ls -al ./plugins
           fi
         done < plugins.config
 
 
     - name: Build Docker image
-      run: docker build . --file Dockerfile --tag "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}-b"
+      run: docker build . --file Dockerfile --tag "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}-c"
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -77,6 +77,6 @@ jobs:
       
     - name: Push Docker image to Docker Hub
       run: |
-        docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}-b"
+        docker push "${{ env.DOCKER_IMAGE_NAME }}:${{ env.STRIMZI_VERSION }}-c"
       env:
         DOCKER_IMAGE_TAG: ${{ steps.commit_id.outputs.commit_id }}
